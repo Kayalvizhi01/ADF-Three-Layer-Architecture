@@ -2423,6 +2423,39 @@
 							],
 							"scriptBlockExecutionTimeout": "02:00:00"
 						}
+					},
+					{
+						"name": "Script2",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "Script1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "ls_sqlserver_kayal",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "CREATE VIEW RPT.CUSTOMER_TOP_10_PURCHASE_kayal AS\n\n\nWITH CustomerTotalPurchase AS (\n    SELECT\n        CUSTKEY,\n        SUM(totalprice) AS total_purchase_amount\n    FROM ODS.ORDERS_kayal\n    GROUP BY CUSTKEY\n)\nSELECT TOP 10\n    CUSTKEY,\n    total_purchase_amount\nFROM CustomerTotalPurchase\nORDER BY total_purchase_amount DESC;"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
 					}
 				],
 				"policy": {
