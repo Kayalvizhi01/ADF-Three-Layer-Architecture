@@ -1,0 +1,66 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "aodadftraining"
+		},
+		"ls_blob_storage_kayal_connectionString": {
+			"value": ""
+		},
+		"ls_blob_storage_reddy_connectionString": {
+			"value": ""
+		},
+		"ls_blobstorage_tpch_connectionString": {
+			"value": ""
+		},
+		"ls_postgresql_tpch_password": {
+			"value": ""
+		},
+		"ls_sqlserver_kayal_password": {
+			"value": ""
+		},
+		"ls_sqlserver_reddy_password": {
+			"value": ""
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com"
+		},
+		"ls_postgresql_tpch_properties_typeProperties_server": {
+			"value": "tpch-adf-demo.postgres.database.azure.com"
+		},
+		"ls_postgresql_tpch_properties_typeProperties_database": {
+			"value": "mona"
+		},
+		"ls_postgresql_tpch_properties_typeProperties_username": {
+			"value": "pgadmin"
+		},
+		"ls_sqlserver_kayal_properties_typeProperties_server": {
+			"value": "three-layer-sql-server.database.windows.net"
+		},
+		"ls_sqlserver_kayal_properties_typeProperties_database": {
+			"value": "three-layer-database"
+		},
+		"ls_sqlserver_kayal_properties_typeProperties_userName": {
+			"value": "training123"
+		},
+		"ls_sqlserver_reddy_properties_typeProperties_server": {
+			"value": "three-layer-sql-server.database.windows.net"
+		},
+		"ls_sqlserver_reddy_properties_typeProperties_database": {
+			"value": "three-layer-database"
+		},
+		"ls_sqlserver_reddy_properties_typeProperties_userName": {
+			"value": "training123"
+		},
+		"t1_properties_typeProperties_scope": {
+			"value": "/subscriptions/fe80f981-772c-4f35-b6bd-a39c3485fdbf/resourceGroups/adf_training_rg/providers/Microsoft.Storage/storageAccounts/adftraining26"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}

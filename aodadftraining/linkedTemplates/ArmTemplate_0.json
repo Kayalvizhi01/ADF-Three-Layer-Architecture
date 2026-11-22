@@ -1,0 +1,656 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "aodadftraining"
+		},
+		"ls_blob_storage_kayal_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_blob_storage_kayal'"
+		},
+		"ls_blob_storage_reddy_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_blob_storage_reddy'"
+		},
+		"ls_blobstorage_tpch_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_blobstorage_tpch'"
+		},
+		"ls_postgresql_tpch_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_postgresql_tpch'"
+		},
+		"ls_sqlserver_kayal_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_sqlserver_kayal'"
+		},
+		"ls_sqlserver_reddy_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_sqlserver_reddy'"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://raw.githubusercontent.com"
+		},
+		"ls_postgresql_tpch_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "tpch-adf-demo.postgres.database.azure.com"
+		},
+		"ls_postgresql_tpch_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "mona"
+		},
+		"ls_postgresql_tpch_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "pgadmin"
+		},
+		"ls_sqlserver_kayal_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "three-layer-sql-server.database.windows.net"
+		},
+		"ls_sqlserver_kayal_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "three-layer-database"
+		},
+		"ls_sqlserver_kayal_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "training123"
+		},
+		"ls_sqlserver_reddy_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "three-layer-sql-server.database.windows.net"
+		},
+		"ls_sqlserver_reddy_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "three-layer-database"
+		},
+		"ls_sqlserver_reddy_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "training123"
+		},
+		"t1_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/fe80f981-772c-4f35-b6bd-a39c3485fdbf/resourceGroups/adf_training_rg/providers/Microsoft.Storage/storageAccounts/adftraining26"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Three layer achitecture')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"enableStaging": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Acadamy_of_data_class5_p"
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-11-17T05:28:06Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/HttpServer1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('HttpServer1_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_blob_storage_kayal')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_blob_storage_kayal_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_blob_storage_reddy')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_blob_storage_reddy_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_blobstorage_tpch')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_blobstorage_tpch_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_postgresql_tpch')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzurePostgreSql",
+				"version": "2.0",
+				"typeProperties": {
+					"server": "[parameters('ls_postgresql_tpch_properties_typeProperties_server')]",
+					"port": "5432",
+					"database": "[parameters('ls_postgresql_tpch_properties_typeProperties_database')]",
+					"sslMode": 2,
+					"username": "[parameters('ls_postgresql_tpch_properties_typeProperties_username')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_postgresql_tpch_password')]"
+					},
+					"authenticationType": "Basic"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sqlserver_kayal')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"server": "[parameters('ls_sqlserver_kayal_properties_typeProperties_server')]",
+					"database": "[parameters('ls_sqlserver_kayal_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_sqlserver_kayal_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_sqlserver_kayal_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sqlserver_reddy')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"server": "[parameters('ls_sqlserver_reddy_properties_typeProperties_server')]",
+					"database": "[parameters('ls_sqlserver_reddy_properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_sqlserver_reddy_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_sqlserver_reddy_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/t1')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/dumy-in-boundcontainer/blobs/",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('t1_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_load_ods_to_rpt_kayal')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Script1",
+						"type": "Script",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "ls_sqlserver_kayal",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "Create OR ALTER view RPT.MONTHLY_SALES_kayal as\nWITH MonthlySales AS (\n    SELECT\n        YEAR(OrderDate) AS order_year,\n        MONTH(OrderDate) AS order_month,\n        SUM(totalprice) AS total_sales\n    FROM ODS.ORDERS_kayal\n    GROUP BY YEAR(OrderDate), MONTH(OrderDate)\n)\nSELECT\n    order_year,\n    order_month,\n    total_sales,\n    LAG(total_sales) OVER (ORDER BY order_year, order_month) AS previous_month_sales,\n    ((total_sales - LAG(total_sales) OVER (ORDER BY order_year, order_month)) / LAG(total_sales) OVER (ORDER BY order_year, order_month)) * 100 AS sales_growth_percentage\nFROM MonthlySales;"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Kay"
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-11-21T14:09:50Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqlserver_kayal')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Ad_dummy_source_target')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Acadamy_of_data"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "dumy-in-boundcontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Ad_source_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"P_source_file": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Acadamy_of_data"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().P_source_file",
+							"type": "Expression"
+						},
+						"container": "inbound"
+					},
+					"columnDelimiter": "|",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Ad_source_get_metadata_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Acadamy_of_data"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "inbound"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Ad_target_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_target_file": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Acadamy_of_data"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "outbound"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzurePostgreSqlTable1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_postgresql_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Mona"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "tpch_mn",
+					"table": "customer"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_postgresql_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Blob_Copy')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Gopi"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "customer.tbl",
+						"container": "inbound"
+					},
+					"columnDelimiter": "|",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DummyDataSet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"pname": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Gopi"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().pname",
+							"type": "Expression"
+						},
+						"container": "dumy-in-boundcontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Kay_sinkdataset_1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Kay"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "sales",
+						"container": "outbound"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Kay_sourcedataset_1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Kay"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "inbound"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/P1_getmetadata_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blobstorage_tpch",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Acadamy_of_data_class5"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "inbound"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blobstorage_tpch')]"
+			]
+		}
+	]
+}
