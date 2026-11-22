@@ -1,0 +1,245 @@
+{
+	"name": "pl_load_stg_ods_reddy",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy_customer_data",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "\nSELECT\n    CUSTKEY,\n    NAME,\n    ADDRESS,\n    NATIONKEY,\n    PHONE,\n    ACCTBAL,\n    MKTSEGMENT,\n    COMMENT,\n    CASE\n        WHEN ACCTBAL > 10000 THEN 'High Value'\n        WHEN ACCTBAL BETWEEN 5000 AND 10000 THEN 'Medium Value'\n        ELSE 'Low Value'\n    END AS CUSTOMER_SEGMENT,\n    GETDATE() AS INSERT_DATE\nFROM STG.CUSTOMER_reddy;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"preCopyScript": "delete from ODS.CUSTOMER_reddy",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_reddy",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_nm": {
+								"value": "@pipeline().parameters.stg_schema",
+								"type": "Expression"
+							},
+							"table_nm": "CUSTOMER_reddy"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_reddy",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_nm": {
+								"value": "@pipeline().parameters.ods_schema",
+								"type": "Expression"
+							},
+							"table_nm": "CUSTOMER_reddy"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy_LINEITEM_reddy",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Copy_customer_data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    ORDERKEY,\n    PARTKEY,\n    SUPPKEY,\n    LINENUMBER,\n    QUANTITY,\n    EXTENDEDPRICE,\n    DISCOUNT,\n    TAX,\n    RETURNFLAG,\n    LINESTATUS,\n    SHIPDATE,\n    COMMITDATE,\n    RECEIPTDATE,\n    SHIPINSTRUCT,\n    SHIPMODE,\n    COMMENT,\n    EXTENDEDPRICE * 0.1 AS PROFIT, -- Assuming a 10% profit margin\n    GETDATE() AS INSERT_DATE\nFROM STG.LINEITEM_reddy\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"preCopyScript": "delete from ODS.LINEITEM_reddy",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_reddy",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_nm": {
+								"value": "@pipeline().parameters.stg_schema",
+								"type": "Expression"
+							},
+							"table_nm": "LINEITEM_reddy"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_reddy",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_nm": {
+								"value": "@pipeline().parameters.ods_schema",
+								"type": "Expression"
+							},
+							"table_nm": "LINEITEM_reddy"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy_data_Nation_Region",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    N.NATIONKEY,\n    N.NAME,\n    R.REGIONKEY,\n    R.NAME  AS REGION_NAME,\n    GETDATE() AS INSERT_DATE\nFROM\n    STG.NATION_reddy N\nJOIN\n   STG.REGION_reddy R ON N.REGIONKEY = R.REGIONKEY;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"preCopyScript": "delete from ODS.NATION_REGION_DETAILS_reddy",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_reddy",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_nm": {
+								"value": "@pipeline().parameters.stg_schema",
+								"type": "Expression"
+							},
+							"table_nm": "Nation_reddy"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_reddy",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_nm": {
+								"value": "@pipeline().parameters.ods_schema",
+								"type": "Expression"
+							},
+							"table_nm": "NATION_REGION_DETAILS_reddy"
+						}
+					}
+				]
+			},
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_sqlserver_reddy",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "CREATE VIEW RPT.CUSTOMER_TOP_10_PURCHASE AS\n\n\nWITH CustomerTotalPurchase AS (\n    SELECT\n        CUSTKEY,\n        SUM(totalprice) AS total_purchase_amount\n    FROM ODS.ORDERS_reddy\n    GROUP BY CUSTKEY\n)\nSELECT TOP 10\n    CUSTKEY,\n    total_purchase_amount\nFROM CustomerTotalPurchase\nORDER BY total_purchase_amount DESC;\n"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"stg_schema": {
+				"type": "string",
+				"defaultValue": "STG"
+			},
+			"ods_schema": {
+				"type": "string",
+				"defaultValue": "ODS"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-11-17T12:00:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

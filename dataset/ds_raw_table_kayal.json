@@ -1,0 +1,34 @@
+{
+	"name": "ds_raw_table_kayal",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqlserver_kayal",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"db_schema": {
+				"type": "string"
+			},
+			"db_table": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Kay"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().db_schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().db_table",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

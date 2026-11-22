@@ -1,0 +1,379 @@
+{
+	"name": "pl_load_stg_to_ods_kayal",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copydata_Customer_kayal",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    CUSTKEY,\n    NAME,\n    ADDRESS,\n    NATIONKEY,\n    PHONE,\n    ACCTBAL,\n    MKTSEGMENT,\n    COMMENT,\n    CASE\n        WHEN ACCTBAL > 10000 THEN 'High Value'\n        WHEN ACCTBAL BETWEEN 5000 AND 10000 THEN 'Medium Value'\n        ELSE 'Low Value'\n    END AS CUSTOMER_SEGMENT,\n    GETDATE() AS INSERT_DATE\nFROM STG.CUSTOMER_kayal;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "stg",
+							"db_table": "stg.CUSTOMER_kayal"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "ods",
+							"db_table": "CUSTOMER_kayal"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copydata_orders_kayal",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copydata_Customer_kayal",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    ORDERKEY,\n    CUSTKEY,\n    ORDERSTATUS,\n    TOTALPRICE,\n    ORDERDATE,\n    ORDERPRIORITY,\n    CLERK,\n    SHIPPRIORITY,\n    COMMENT,\n    TOTALPRICE * 0.1 AS ORDER_PROFIT, -- Assuming 10% profit margin\n    GETDATE() AS INSERT_DATE\nFROM STG.ORDERS_kayal;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "stg",
+							"db_table": "ORDERS_kayal"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "ods",
+							"db_table": "ORDERS_kayal"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copydata_Part_kayal",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copydata_orders_kayal",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    PARTKEY,\n    NAME,\n    MFGR,\n    BRAND,\n    TYPE,\n    SIZE,\n    CONTAINER,\n    RETAILPRICE,\n    COMMENT,\n   \n    0.1 AS PROFIT_MARGIN, -- Assuming a 10% profit margin\n    GETDATE() AS INSERT_DATE\nFROM STG.PART_kayal;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"preCopyScript": "TRUNCATE TABLE ODS.PART_kayal",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "stg",
+							"db_table": "PART_kayal"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "ods",
+							"db_table": "PART_kayal"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copydata_supplier_kayal",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copydata_Part_kayal",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    SUPPKEY,\n    NAME,\n    ADDRESS,\n    NATIONKEY,\n    PHONE,\n    ACCTBAL,\n    COMMENT,\n    CASE\n        WHEN ACCTBAL > 10000 THEN 5  -- High Rating\n        WHEN ACCTBAL BETWEEN 5000 AND 10000 THEN 3  -- Medium Rating\n        ELSE 1  -- Low Rating\n    END AS SUPPLIER_RATING,\n    GETDATE() AS INSERT_DATE\nFROM STG.SUPPLIER_kayal;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "stg",
+							"db_table": "SUPPLIER_kayal"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "ods",
+							"db_table": "SUPPLIER_kayal"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copydata_lineitem_kayal",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copydata_supplier_kayal",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    ORDERKEY,\n    PARTKEY,\n    SUPPKEY,\n    LINENUMBER,\n    QUANTITY,\n    EXTENDEDPRICE,\n    DISCOUNT,\n    TAX,\n    RETURNFLAG,\n    LINESTATUS,\n    SHIPDATE,\n    COMMITDATE,\n    RECEIPTDATE,\n    SHIPINSTRUCT,\n    SHIPMODE,\n    COMMENT,\n    EXTENDEDPRICE * 0.1 AS PROFIT, -- Assuming a 10% profit margin\n    GETDATE() AS INSERT_DATE\nFROM STG.LINEITEM_kayal",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "stg",
+							"db_table": "LINEITEM_kayal"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "ods",
+							"db_table": "LINEITEM_kayal"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copydata_NationRegionDetails_kayal",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copydata_lineitem_kayal",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    N.NATIONKEY,\n    N.NAME,\n    R.REGIONKEY,\n    R.NAME  AS REGION_NAME,\n    GETDATE() AS INSERT_DATE\nFROM\n    STG.NATION N\nJOIN\n   STG.REGION R ON N.REGIONKEY = R.REGIONKEY;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "stg",
+							"db_table": "NATION_REGION_DETAILS_kayal"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_raw_table_kayal",
+						"type": "DatasetReference",
+						"parameters": {
+							"db_schema": "ods",
+							"db_table": "NATION_REGION_DETAILS_kayal "
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "Kay"
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-11-21T14:09:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

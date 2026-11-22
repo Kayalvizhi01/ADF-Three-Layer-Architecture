@@ -1,0 +1,17 @@
+{
+	"name": "t1",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/dumy-in-boundcontainer/blobs/",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/fe80f981-772c-4f35-b6bd-a39c3485fdbf/resourceGroups/adf_training_rg/providers/Microsoft.Storage/storageAccounts/adftraining26",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

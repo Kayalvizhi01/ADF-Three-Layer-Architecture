@@ -1,0 +1,39 @@
+{
+	"name": "pl_load_ods_to_rpt_kayal",
+	"properties": {
+		"activities": [
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_sqlserver_kayal",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "Create OR ALTER view RPT.MONTHLY_SALES_kayal as\nWITH MonthlySales AS (\n    SELECT\n        YEAR(OrderDate) AS order_year,\n        MONTH(OrderDate) AS order_month,\n        SUM(totalprice) AS total_sales\n    FROM ODS.ORDERS_kayal\n    GROUP BY YEAR(OrderDate), MONTH(OrderDate)\n)\nSELECT\n    order_year,\n    order_month,\n    total_sales,\n    LAG(total_sales) OVER (ORDER BY order_year, order_month) AS previous_month_sales,\n    ((total_sales - LAG(total_sales) OVER (ORDER BY order_year, order_month)) / LAG(total_sales) OVER (ORDER BY order_year, order_month)) * 100 AS sales_growth_percentage\nFROM MonthlySales;"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"folder": {
+			"name": "Kay"
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-11-21T14:09:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

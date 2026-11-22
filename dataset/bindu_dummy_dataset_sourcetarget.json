@@ -1,0 +1,36 @@
+{
+	"name": "bindu_dummy_dataset_sourcetarget",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_blobstorage_tpch",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"pl_dummy_file": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "bindu"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().pl_dummy_file",
+					"type": "Expression"
+				},
+				"container": "dumy-in-boundcontainer"
+			},
+			"columnDelimiter": "|",
+			"rowDelimiter": "\n",
+			"escapeChar": "\\",
+			"firstRowAsHeader": false,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,163 @@
+{
+	"name": "pl_load_blob_stg_reddy",
+	"properties": {
+		"activities": [
+			{
+				"name": "getmetadata",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_source_folder_reddy",
+						"type": "DatasetReference",
+						"parameters": {
+							"src_dir": {
+								"value": "@pipeline().parameters.src_container",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "getmetadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('getmetadata').output.childItems",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"additionalColumns": [
+										{
+											"name": "INSERT_DATE",
+											"value": {
+												"value": "@utcNow()",
+												"type": "Expression"
+											}
+										}
+									],
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "SqlServerSink",
+									"preCopyScript": {
+										"value": "@concat('delete from stg.' ,concat(toUpper(split(item().name,'.')[0]),'_reddy'))",
+										"type": "Expression"
+									},
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_source_file_reddy",
+									"type": "DatasetReference",
+									"parameters": {
+										"src_dir": {
+											"value": "@pipeline().parameters.src_container",
+											"type": "Expression"
+										},
+										"file_dir": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_raw_table_reddy",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema_nm": {
+											"value": "@pipeline().parameters.schema_name",
+											"type": "Expression"
+										},
+										"table_nm": {
+											"value": "@concat(toUpper(split(item().name,'.')[0]),'_reddy')  ",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"src_container": {
+				"type": "string",
+				"defaultValue": "bronze"
+			},
+			"schema_name": {
+				"type": "string",
+				"defaultValue": "STG"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-11-17T10:58:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,16 @@
+{
+	"name": "bindu_ds_postgres",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_postgresql_tpch",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "bindu"
+		},
+		"annotations": [],
+		"type": "AzurePostgreSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

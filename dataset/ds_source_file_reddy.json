@@ -1,0 +1,41 @@
+{
+	"name": "ds_source_file_reddy",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_blob_storage_reddy",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"src_dir": {
+				"type": "string"
+			},
+			"file_dir": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "three_layer_architecture"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().file_dir",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().src_dir",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

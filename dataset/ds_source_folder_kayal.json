@@ -1,0 +1,34 @@
+{
+	"name": "ds_source_folder_kayal",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_blob_storage_kayal",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"src_container": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Kay"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": {
+					"value": "@dataset().src_container",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": false,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
